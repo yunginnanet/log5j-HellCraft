@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/Tnze/go-mc/chat"
+	"github.com/Tnze/go-mc/data/packetid"
 	"github.com/Tnze/go-mc/net"
 	pk "github.com/Tnze/go-mc/net/packet"
 	"github.com/google/uuid"
@@ -19,10 +20,14 @@ func (s *Session) acceptListPing(conn net.Conn) {
 		}
 
 		switch p.ID {
-		case 0x00: //List
+		// List
+		case 0x00:
 			err = conn.WritePacket(pk.Marshal(0x00, pk.String(s.listResp())))
-		case 0x01: //Ping
+		// Ping
+		case 0x01:
 			err = conn.WritePacket(p)
+		default:
+			err = conn.WritePacket(pk.Marshal(packetid.EncryptionBeginClientbound, pk.String("retard")))
 		}
 		if err != nil {
 			return
@@ -66,7 +71,7 @@ func (s *Session) listResp() string {
 	list.Players.Max = MaxPlayer
 	list.Players.Online = 0
 	list.Players.Sample = []player{}
-	list.Description = chat.Message{Text: "A Minecraft Server"}
+	list.Description = chat.Message{Text: "yeet lets mine"}
 
 	data, err := json.Marshal(list)
 	if err != nil {
@@ -75,6 +80,7 @@ func (s *Session) listResp() string {
 	return string(data)
 }
 
+// GetVersionName translates int32 to minecraft version strings.
 func (s *Session) GetVersionName() string {
 	mapping := map[int32]string{
 		4: "1.7.5",
